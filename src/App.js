@@ -1,25 +1,70 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import NewContact from "./components/NewContact";
+import TodoList from "./components/TodoList";
+import ChangeModal from "./components/ChangeModal";
 
-function App() {
+const App = () => {
+  const [modal, setModal] = useState(false);
+  const [editContact, setEditContact] = useState({});
+
+  const handleEdit = (taskToEdit) => {
+    setModal(true);
+    setEditContact(taskToEdit);
+  };
+  const handleCloseModal = () => {
+    setModal(false);
+  };
+  const [contact, setContact] = useState([]);
+  function list(newObj) {
+    let newContact = [...contact, newObj];
+    newContact.sort((a, b) => a.name.localeCompare(b.name)); // Сортировка по имени в алфавитном порядке
+    setContact(newContact);
+  }
+
+  const handleSaveContact = (updatedContact) => {
+    const newContact = contact.map((item) => {
+      if (item.id == updatedContact.id) {
+        return updatedContact;
+      }
+    });
+    setContact(newContact);
+    handleCloseModal();
+  };
+
+  const handleDelete = (id) => {
+    let newContact = contact.filter((item) => item.id !== id);
+
+    setContact(newContact);
+  };
+
+  const [showModal, setShowModal] = useState(false);
+  function handleShowModal() {
+    setShowModal(true);
+  }
+  function handleHideModal() {
+    setShowModal(false);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {showModal ? (
+        <NewContact list={list} handleHideModal={handleHideModal} />
+      ) : null}
+      <TodoList
+        contact={contact}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+        handleShowModal={handleShowModal}
+      />
+      {modal ? (
+        <ChangeModal
+          editContact={editContact}
+          handleCloseModal={handleCloseModal}
+          handleSaveContact={handleSaveContact}
+        />
+      ) : null}
     </div>
   );
-}
+};
 
 export default App;
